@@ -2,7 +2,6 @@
   --bg: #f8fafb;
   --ink: #212c35;
   --coral: #ff4d71;
-  --btn: #e63b62;
   --tint: rgba(255, 77, 113, .16);
   --rule: rgba(33, 44, 53, .35);
 }
@@ -36,10 +35,10 @@ a { color: inherit; }
 p a, .eg { text-decoration: underline; text-decoration-color: var(--rule); text-underline-offset: 4px; text-decoration-thickness: 1px; transition: color .2s, text-decoration-color .2s, background .2s; border-radius: 4px; }
 p a:hover, .eg:hover { color: var(--coral); text-decoration-color: var(--coral); background: var(--tint); }
 .eg { cursor: default; }
-.tag { margin-top: 1.4em; font-size: 1.15em; }
-.btn { display: inline-block; margin-top: .4em; padding: .55em 1.5em; border-radius: 999px; background: var(--btn); color: #fff; text-decoration: none; transition: transform .2s, background .2s; }
-.btn:hover { background: #cf2c52; transform: translateY(-2px); }
-.sub { margin: 1.4em auto 0; font-size: .75em; }
+nav { margin-top: 1.8em; }
+nav a { display: block; width: fit-content; margin: 0 auto .5em; color: inherit; text-decoration: none; background: linear-gradient(var(--tint), var(--tint)) 0 100% / 100% .28em no-repeat; transition: background-size .2s, color .2s; }
+nav a:hover { background-size: 100% 100%; }
+nav a::after { content: "\203A"; margin-left: .35em; color: var(--coral); }
 dialog { width: min(880px, 92vw); padding: 0; border: 0; border-top: 4px solid var(--coral); border-radius: 14px; background: var(--bg); color: inherit; box-shadow: 0 24px 80px rgba(0, 0, 0, .35); font: inherit; text-align: left; }
 dialog[open] { animation: in .25s ease both; }
 dialog::backdrop { background: rgba(22, 29, 35, .45); backdrop-filter: blur(6px); }
@@ -50,7 +49,8 @@ dialog::backdrop { background: rgba(22, 29, 35, .45); backdrop-filter: blur(6px)
 .pop button:hover { opacity: 1; color: var(--coral); }
 .pop p { margin: 0 0 .8em; max-width: none; }
 .pop video { display: block; width: 100%; aspect-ratio: 16 / 9; border-radius: 8px; background: #000; }
-.pop .btn { margin-top: 1.2em; font-size: .85em; }
+.pop nav { margin-top: 1.2em; }
+.pop nav a { margin: 0; }
 #tip { position: fixed; left: 0; top: 0; z-index: 10; width: 44px; height: 44px; color: var(--coral); pointer-events: none; }
 #tip svg { width: 100%; height: 100%; opacity: 0; transform: scale(.4) rotate(-14deg); transition: opacity .15s, transform .25s cubic-bezier(.34, 1.56, .64, 1); }
 #tip.on svg { opacity: 1; transform: scale(1) rotate(-6deg); }
