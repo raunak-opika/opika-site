@@ -18,7 +18,7 @@
   <p>Just name the task, like you would to a colleague. It costs <em>$30 an hour</em>, while your people bill <em>$200</em>.</p>
   <p>It can <span class="eg" data-icon="mail">chase a client for documents</span>, <span class="eg" data-icon="clock">fill in time entries</span>, <span class="eg" data-icon="chart">build the weekly report</span>, or <span class="eg" data-icon="admin">clear the admin</span>.</p>
   <nav>
-    <a href="https://calendly.com/aniket-opika/you">Try Opika</a>
+    <a href="#try" data-try>Try Opika</a>
     <a data-video="cpa-firm.mp4" data-title="See what we have done for a CPA firm." href="cpa-firm.mp4">Watch it work</a>
     <a href="mailto:?subject=Opika%3A%20more%20billable%20hours&body=I%20thought%20of%20you.%20Opika%20is%20an%20AI%20assistant%20for%20firms%20that%20bill%20by%20the%20hour.%20https%3A%2F%2Fwww.opika.co">Invite a friend</a>
   </nav>
@@ -35,7 +35,26 @@
     </header>
     <p id="vt"></p>
     <video controls playsinline preload="none"></video>
-    <nav><a href="https://calendly.com/aniket-opika/you">Try Opika</a></nav>
+    <nav><a href="#try" data-try>Try Opika</a></nav>
+  </div>
+</dialog>
+<dialog id="try" aria-label="Try Opika">
+  <div class="pop">
+    <header>
+      <img class="logo" src="logo.png" alt="Opika" height="28">
+      <form method="dialog"><button aria-label="Close">&times;</button></form>
+    </header>
+    <form id="lead">
+      <p>Tell us a little. We will reply by email.</p>
+      <input name="name" placeholder="Your name" autocomplete="name" required>
+      <input name="phone" type="tel" placeholder="Your phone number" autocomplete="tel" required>
+      <input name="email" type="email" placeholder="Your work email" autocomplete="email" required>
+      <textarea name="message" rows="3" placeholder="Anything you want us to know (optional)"></textarea>
+      <input name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <button class="go">Send</button>
+      <small id="fm" role="status"></small>
+    </form>
+    <p id="thanks" hidden>Thank you. Check your inbox, we just emailed you.</p>
   </div>
 </dialog>
 <script>
@@ -48,7 +67,23 @@ document.querySelectorAll('[data-video]').forEach(a => a.onclick = e => {
   d.showModal();
   v.play();
 });
-d.onclick = e => { if (e.target === d) d.close(); };
+const t = document.getElementById('try'), f = document.getElementById('lead'), em = f.email;
+[d, t].forEach(x => x.onclick = e => { if (e.target === x) x.close(); });
+document.querySelectorAll('[data-try]').forEach(a => a.onclick = e => { e.preventDefault(); d.close(); t.showModal(); });
+// work emails only, mirrored on the server in api/lead.js
+const free = /^(gmail|googlemail|yahoo|ymail|rocketmail|hotmail|outlook|live|msn|aol|icloud|me|mac|proton|protonmail|pm|gmx|mail|zoho|yandex|rediffmail|rediff|inbox|hey|fastmail)\.(com|net|org|in|co\.in|co\.uk|co|me|fr|de|it|ca|com\.au)$/i;
+em.oninput = () => em.setCustomValidity(free.test(em.value.split('@')[1] || '') ? 'Please use your work email, not a personal one.' : '');
+f.onsubmit = async e => {
+  e.preventDefault();
+  const m = document.getElementById('fm');
+  m.textContent = 'Sending';
+  try {
+    const r = await fetch('/api/lead', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.fromEntries(new FormData(f))) });
+    if (!r.ok) throw 0;
+    f.hidden = true;
+    document.getElementById('thanks').hidden = false;
+  } catch { m.textContent = 'Something went wrong. Please try again.'; }
+};
 d.onclose = () => v.pause();
 
 // hand drawn doodles that follow the cursor over the examples
