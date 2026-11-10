@@ -20,7 +20,7 @@
   <nav>
     <a href="#try" data-try>Try Opika</a>
     <a data-video="cpa-firm.mp4" data-title="See what we have done for a CPA firm." href="cpa-firm.mp4">Watch it work</a>
-    <a href="mailto:?subject=Opika%3A%20more%20billable%20hours&body=I%20thought%20of%20you.%20Opika%20is%20an%20AI%20assistant%20for%20firms%20that%20bill%20by%20the%20hour.%20https%3A%2F%2Fwww.opika.co">Invite a friend</a>
+    <a href="#" data-share>Invite a friend</a>
   </nav>
 </main>
 <footer>
@@ -84,6 +84,15 @@ f.onsubmit = async e => {
     document.getElementById('thanks').hidden = false;
   } catch { m.textContent = 'Something went wrong. Please try again.'; }
 };
+// copy the link, then open the share sheet (WhatsApp, iMessage, Instagram, X, email...) where the browser has one
+document.querySelectorAll('[data-share]').forEach(a => a.onclick = async e => {
+  e.preventDefault();
+  const url = location.origin + '/', label = a.textContent;
+  navigator.clipboard?.writeText(url).catch(() => {});
+  a.textContent = 'Link copied';
+  setTimeout(() => a.textContent = label, 2000);
+  try { await navigator.share?.({ title: 'Opika', text: "Opika is an AI assistant that does your firm's unbillable work.", url }); } catch {}
+});
 d.onclose = () => v.pause();
 
 // hand drawn doodles that follow the cursor over the examples
