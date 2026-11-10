@@ -2,7 +2,8 @@
 const dns = require('dns').promises;
 const FREE = /^(gmail|googlemail|yahoo|ymail|rocketmail|hotmail|outlook|live|msn|aol|icloud|me|mac|proton|protonmail|pm|gmx|mail|zoho|yandex|rediffmail|rediff|inbox|hey|fastmail)\.(com|net|org|in|co\.in|co\.uk|co|me|fr|de|it|ca|com\.au)$/i;
 // ponytail: MX only proves the domain takes mail, not that the mailbox exists. Real proof is a verification email once a domain is verified
-const hasMail = d => dns.resolveMx(d).then(r => r.length > 0, e => !['ENOTFOUND', 'ENODATA'].includes(e.code));
+const hasMail = d => dns.resolveMx(d).then(r => r.some(m => m.exchange), // null MX ("0 .") means the domain takes no mail
+   e => !['ENOTFOUND', 'ENODATA'].includes(e.code));
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
 const send = (to, subject, html, reply_to) => fetch('https://api.resend.com/emails', {
