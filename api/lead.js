@@ -1,5 +1,8 @@
 // Needs env vars: RESEND_API_KEY, FROM_EMAIL (on a domain verified in Resend), NOTIFY_EMAIL (your team inbox)
+const dns = require('dns').promises;
 const FREE = /^(gmail|googlemail|yahoo|ymail|rocketmail|hotmail|outlook|live|msn|aol|icloud|me|mac|proton|protonmail|pm|gmx|mail|zoho|yandex|rediffmail|rediff|inbox|hey|fastmail)\.(com|net|org|in|co\.in|co\.uk|co|me|fr|de|it|ca|com\.au)$/i;
+// ponytail: MX only proves the domain takes mail, not that the mailbox exists. Real proof is a verification email once a domain is verified
+const hasMail = d => dns.resolveMx(d).then(r => r.length > 0, e => !['ENOTFOUND', 'ENODATA'].includes(e.code));
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
 const send = (to, subject, html, reply_to) => fetch('https://api.resend.com/emails', {
@@ -15,6 +18,7 @@ module.exports = async (req, res) => {
   const domain = email.split('@')[1] || '';
   if (!name.trim() || !phone.trim() || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) || FREE.test(domain))
     return res.status(400).json({ error: 'Please use your name, phone and a work email.' });
+  if (!await hasMail(domain)) return res.status(400).json({ error: 'That email domain cannot receive mail. Please check your work email.' });
   try {
     await send(process.env.NOTIFY_EMAIL, `New Opika lead: ${name}`, `<p><b>${esc(name)}</b><br>${esc(email)}<br>${esc(phone)}</p><p>${esc(message) || 'No message'}</p>`, email);
     // ponytail: without a verified domain Resend refuses this one, so it must not fail the form

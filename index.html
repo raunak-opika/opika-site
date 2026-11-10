@@ -79,6 +79,7 @@ f.onsubmit = async e => {
   m.textContent = 'Sending';
   try {
     const r = await fetch('/api/lead', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.fromEntries(new FormData(f))) });
+    if (r.status === 400) { m.textContent = (await r.json()).error; return; }
     if (!r.ok) throw 0;
     f.hidden = true;
     document.getElementById('thanks').hidden = false;
