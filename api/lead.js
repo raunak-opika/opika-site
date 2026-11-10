@@ -6,7 +6,7 @@ const send = (to, subject, html, reply_to) => fetch('https://api.resend.com/emai
   method: 'POST',
   headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
   body: JSON.stringify({ from: `Opika <${process.env.FROM_EMAIL}>`, to, subject, html, reply_to })
-}).then(r => { if (!r.ok) throw new Error('send failed'); });
+}).then(async r => { if (!r.ok) throw new Error(`${r.status} ${await r.text()}`); });
 
 module.exports = async (req, res) => {
   if (req.method !== 'POST') return res.status(405).end();
@@ -16,10 +16,12 @@ module.exports = async (req, res) => {
   if (!name.trim() || !phone.trim() || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) || FREE.test(domain))
     return res.status(400).json({ error: 'Please use your name, phone and a work email.' });
   try {
-    await send(email, 'We got your note', `<p>Hi ${esc(name.trim().split(' ')[0])},</p><p>Thank you for reaching out to Opika. We will get back to you within one business day.</p><p>Want to talk sooner? <a href="https://calendly.com/aniket-opika/you">Pick a time</a>.</p><p>Opika</p>`);
     await send(process.env.NOTIFY_EMAIL, `New Opika lead: ${name}`, `<p><b>${esc(name)}</b><br>${esc(email)}<br>${esc(phone)}</p><p>${esc(message) || 'No message'}</p>`, email);
+    // ponytail: without a verified domain Resend refuses this one, so it must not fail the form
+    await send(email, 'We got your note', `<p>Hi ${esc(name.trim().split(' ')[0])},</p><p>Thank you for reaching out to Opika. We will get back to you within one business day.</p><p>Want to talk sooner? <a href="https://calendly.com/aniket-opika/you">Pick a time</a>.</p><p>Opika</p>`).catch(e => console.error('confirmation failed', e.message));
     res.status(200).json({ ok: true });
-  } catch {
+  } catch (e) {
+    console.error(e.message);
     res.status(500).json({ error: 'Could not send' });
   }
 };
