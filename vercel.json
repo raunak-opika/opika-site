@@ -1,0 +1,6 @@
+{
+  "redirects": [
+    { "source": "/", "destination": "/watch.html", "permanent": false },
+    { "source": "/index.html", "destination": "/watch.html", "permanent": false }
+  ]
+}
